@@ -1,0 +1,14 @@
+body, td {
+	font-family: Arial, Verdana, sans-serif;
+}
+th {
+	text-align: left;
+	border-bottom: 2px solid #000;
+	padding-top: 20px;
+}
+input, select {
+	width: 300px;
+}
+p.error {
+	color: f00;
+}

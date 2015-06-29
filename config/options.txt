@@ -1,0 +1,82 @@
+construction_cost	c	0,1,2	The construction costs (low/medium/high)
+disasters	c	0,1	Disasters on (1) or off (0)
+initial_interest	c	2,3,4	Initial interest % on the loan
+line_reverse_mode	c	0,1	Trains can turn around only at line end (1) or also in stations (0)
+landscape	c	temperate,arctic,tropic,toyland	The game landscape
+max_loan	c	100000,150000,200000,250000,300000,350000,400000,450000,500000	Maximum loan in pounds
+number_industries	c	0,1,2,3,4	Number of industries on the map (none, very low, low, normal, high)
+number_towns	c	0,1,2,3,4	Number of towns on the map (very low, low, normal, high, custom)
+custom_town_number	t	
+quantity_sea_lakes	c	0,1,2,3	Sets the quantity of water features on a new map (very low, low, medium, high)
+subsidy_multiplier	c	0,1,2,3	Bonus multiplier for subsidies: 1.5x, 2.0x, 3.0x, 4.0x
+terrain_type	c	0,1,2,3	Very flat, flat, hilly or mountainous terrain
+town_council_tolerance	c	0,1,2	Permissive, tolerant or hostile town counsils
+vehicle_breakdowns	c	0,1,2	No, reduced or normal breakdowns for vehicles
+vehicle_costs	c	0,1,2	Low, medium or high vehicle costs
+
+disable_elrails	b	Whether to disable electric rails
+extend_vehicle_life	t	Extends every vehicles life by x years, 0 <= x <= 100
+mammoth_trains	b	Whether to allow mammoth trains (up to 99 tiles) or limit the wagons to 9
+never_expire_vehicles	b	Stop vehicles from going "out of date" and so they will remain available until the very end of the game
+max_aircraft	t	Maximum aircraft per company
+max_roadveh	t	Maximum road vehicles per company
+max_ships	t	Maximum ships per company
+max_trains	t	Maximum trains per company
+plane_speed	c	1,2,3,4	Plane speed multiplier, corresponds to 1/1, 1/2, 1/3 and 1/4
+road_side	c	left,right	The side of the road for vehicles to drive on
+train_acceleration_model	c	0,1	Use the default (0) or realistic (1) train acceleration model
+wagon_speed_limits	b	Enable speed limits for wagons
+
+freeform_edges	b	If enabled, the classic limitation that the map edges have to be water is lifted
+raw_industry_construction	c	0,1,2	No raw industry construction (0), normal funding (1) or prospecting (2)
+road_stop_on_competitor_road b
+road_stop_on_town_road	b
+autoslope	b	Allow terraforming under buildings, tracks, etc.
+
+adjacent_stations c true,false	Allow building multiple adjacent stations
+always_small_airport	b	Always allow building small airports
+distant_join_station	b
+join_stations	b
+modified_catchment	b	Catchment varies depending on what type of "station" it is
+nonuniform_stations	b	
+station_spread	t	How large a station can be built (max. side length in tiles)
+
+allow_shares	b
+allow_town_roads	b
+bribe	b
+exclusive_rights	b
+give_money	b
+inflation	b
+initial_city_size	t
+larger_towns	t	1/x towns will grow to city size, x in N, 0 for no cities
+mod_road_rebuild	b	Enable if towns should remove useless pieces of road to clean up dead ends
+multiple_industry_per_town	b
+same_industry_close	b
+smooth_economy	b	Steady (true) or fluctuating (false) economy
+town_growth_rate	t	How fast the towns will grow
+town_layout	c	0,1,2,3,4	Town roads: default (0), improved (1), 2x2 or 3x3 grids (2,3) or random for each town (4)
+
+gotodepot	b	Enables or disables the Goto depot orders feature
+improved_load	b	Load vehicles one after another instead of all together
+no_servicing_if_no_breakdowns	b	
+serviceathelipad	b
+timetabling	b
+
+autosave	c	off,monthly,quarterly,half year,yearly
+
+autoclean_companies	b
+autoclean_novehicles	t	Months before a company with no vehicles is deleted
+autoclean_protected	t	Months of inactivity before a company's password is removed
+autoclean_unprotected	t	Months of inactivity before a company with no password is deleted
+max_join_time	t	Set the maximum amount of time (ticks) a client is allowed to join
+max_spectators	t	This is how many spectators you allow on your server
+min_active_clients	t	The game is atomatically paused when the number of active players is less than this
+pause_on_join	b	Specifies whether or not to pause the game while a new client joins
+rcon_password	t
+restart_game_year	t	The year the server will restart
+server_advertise	b	Set to true if you wish advertise the server to the master server list
+server_lang	c	ANY,ENGLISH,GERMAN,FRENCH,BRAZILIAN,BULGARIAN,CHINESE,CZECH,DANISH,DUTCH,ESPERANTO,FINNISH,HUNGARIAN,ICELANDIC,ITALIAN,JAPANESE,KOREAN,LITHUANIAN,NORWEGIAN,POLISH,PORTUGUESE,ROMANIAN,RUSSIAN,SLOVAK,SLOVENIAN,SPANISH,SWEDISH,TURKISH,UKRAINIAN	The language spoken on this server. It is shown by a flag in the server list.
+server_name	t
+server_password	t
+server_port	t
+
