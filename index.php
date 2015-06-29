@@ -1,5 +1,5 @@
 <?php
-require utilities.php
+require 'utilities.php';
 $dbhost = 'localhost';
 $dbuser = 'USERNAME';
 $dbpass = 'PASSWORD';
@@ -35,7 +35,7 @@ if($_POST["method"] == 'create'){
 };
 
 if($_POST["method"] == 'destroy'){
-	destroy_OTTD($_POST["pid"]);
+	//destroy_OTTD($_POST["pid"]);
 }
 ?>
 
@@ -44,7 +44,9 @@ if($_POST["method"] == 'destroy'){
 <title>Zvarpensg OpenTTD Server Registry </title>
 </head>
 <body>
-<?php if(!isset($_COOKIE["username"])){
+<?php 
+
+if(!isset($_COOKIE["username"])){
 	echo "<div class='registration'>
 	<center>
 	<h2>User Registration</h2>
@@ -56,9 +58,11 @@ if($_POST["method"] == 'destroy'){
 	<input type='hidden' name='method' value='register'>
 	<input type='submit' value='Register'> </center>
 	</div> "; };
+?>
+<?php
 if(isset($_COOKIE["username"])){
 	if($_POST["port"] < 0 & $_POST["method"] == 'create'){ echo("Negative Port!"); };
-		echo '<html><body><h2>Create a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
+		echo '<html><body><h2>LALALALALCreate a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
 		echo '<h2>View User Saves</h2><br>';
 		$user = $_COOKIE["username"];
 		$fileDir = '/var/www/.openttd/save/' . $user;
