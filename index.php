@@ -4,8 +4,8 @@ if ($_GET["logout"] == 'true')
 	setcookie('username');
 	header('Location: index.php');
 }
-require 'helper.php';
 require 'config.php';
+require 'helper.php';
 $dbconn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
 if (!$dbconn){
 	die("Connection failed: " . mysqli_connect_error());
@@ -13,10 +13,10 @@ if (!$dbconn){
 
 if($_POST["method"] == 'register'){
 	$username = mysqli_real_escape_string($dbconn,$_POST["username"]);
-	echo('sawp nigs');
 	$password = mysqli_real_escape_string($dbconn,$_POST["password"]);
 	$query = "INSERT INTO users VALUES (DEFAULT, '" . $username . "', '" . $password . "')";
 	if(mysqli_query($dbconn, $query)) {
+		create_User($username);
 		setcookie("username", $username, time()+3000);
 		header('Location: index.php');
 	} else {
@@ -46,14 +46,14 @@ if($_POST["method"] == 'login'){
 if($_POST["method"] == 'create'){
 	if($_POST["port"] > 0 & !isset($_POST["pid"])) {
 		$port = $_POST["port"];
-		$saveFile = '/var/www/.openttd/save/' . $_COOKIE["username"] . '/' . $_POST["filename"] .'';
-		$config = '/var/www/.openttd/save/' . $_COOKIE["username"] . '/openttd.cfg';
-	//	create_OTTD($port,$saveFile,$config);
+		$saveFile = '/var/www/public_html/ottd/profiles/' . $_COOKIE["username"] . '/' . $_POST["filename"] .'';
+		$config = '/var/www/public_html/ottd/profiles/' . $_COOKIE["username"] . '/openttd.cfg';
+		create_OTTD($port,$saveFile,$config);
 	};
 };
 
 if($_POST["method"] == 'destroy'){
-	//destroy_OTTD($_POST["pid"]);
+	destroy_OTTD($_POST["pid"]);
 }
 ?>
 
@@ -96,7 +96,7 @@ if($_COOKIE["username"] != NULL){
 		echo '<html><body><span class="logout"><a href="index.php?logout=true">Logout</a><h2>Create a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
 		echo '<h2>View User Saves</h2><br>';
 		$user = $_COOKIE["username"];
-		$fileDir = '/var/www/.openttd/save/' . $user;
+		$fileDir = '/var/www/public_html/ottd/profiles/' . $user;
 		if ($handle = opendir($fileDir)) {
 			while (false !== ($entry = readdir($handle))) {
 				if ($entry != "." && $entry != ".." && strpos($entry, '.sav') !==false) {
