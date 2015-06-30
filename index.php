@@ -1,8 +1,13 @@
 <?php
+if ($_GET["logout"] == 'true')
+{
+	setcookie('username');
+	header('Location: index.php');
+}
 require 'utilities.php';
 $dbhost = 'localhost';
-$dbuser = 'USERNAME';
-$dbpass = 'PASSWORD';
+$dbuser = 'root';
+$dbpass = '@lph@m@le';
 $dbname = 'openttd';
 
 $dbconn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
@@ -11,14 +16,31 @@ if (!$dbconn){
 }
 
 if($_POST["method"] == 'register'){
-	$username = $_POST["username"];
-	$password = $_POST["password"];
+	$username = mysqli_real_escape_string($dbconn,$_POST["username"]);
+	echo('sawp nigs');
+	$password = mysqli_real_escape_string($dbconn,$_POST["password"]);
 	$query = "INSERT INTO users VALUES (DEFAULT, '" . $username . "', '" . $password . "')";
 	if(mysqli_query($dbconn, $query)) {
 		setcookie("username", $username, time()+3000);
 		header('Location: index.php');
 	} else {
 		unset($_COOKIE["username"]);
+		echo "<div class='dbError'>
+		<span class='systemWarning'>" .mysqli_error($dbconn) ." </span>
+		</div> ";
+	};
+};
+
+if($_POST["method"] == 'login'){
+	$username = mysqli_real_escape_string($dbconn,$_POST["username"]);
+	$password = mysqli_real_escape_string($dbconn,$_POST["password"]);
+	$query = "SELECT * FROM users WHERE username='" . $username . "' AND password='" . $password . "'";
+	$userQuery = mysqli_query($dbconn, $query);
+	$userVerify = mysqli_num_rows($userQuery);
+	if($userVerify > 0) {
+		setcookie("username", $username, time()+3000);
+		header('Location: index.php');
+	} else {
 		echo "<div class='dbError'>
 		<span class='systemWarning'>" .mysqli_error($dbconn) ." </span>
 		</div> ";
@@ -46,7 +68,19 @@ if($_POST["method"] == 'destroy'){
 <body>
 <?php 
 
-if(!isset($_COOKIE["username"])){
+if(!isset($_COOKIE["username"]) || $_COOKIE["username"] == ''){
+	echo "<div class='login'>
+	<center>
+	<h2>User Login</h2>
+	<form action='index.php' method='post'>
+	Username: <br>
+	<input class='username' type='text' name='username'> <br>
+	Password: <br>
+	<input class='password' type='password' name='password'><br>
+	<input type='hidden' name='method' value='login'>
+	<input type='submit' value='Login'> 
+	</form></center>
+	</div> ";
 	echo "<div class='registration'>
 	<center>
 	<h2>User Registration</h2>
@@ -56,13 +90,14 @@ if(!isset($_COOKIE["username"])){
 	Password: <br>
 	<input class='password' type='password' name='password'><br>
 	<input type='hidden' name='method' value='register'>
-	<input type='submit' value='Register'> </center>
+	<input type='submit' value='Register'> 
+	</form></center>
 	</div> "; };
 ?>
 <?php
-if(isset($_COOKIE["username"])){
+if($_COOKIE["username"] != NULL){
 	if($_POST["port"] < 0 & $_POST["method"] == 'create'){ echo("Negative Port!"); };
-		echo '<html><body><h2>LALALALALCreate a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
+		echo '<html><body><span class="logout"><a href="index.php?logout=true">Logout</a><h2>Create a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
 		echo '<h2>View User Saves</h2><br>';
 		$user = $_COOKIE["username"];
 		$fileDir = '/var/www/.openttd/save/' . $user;
