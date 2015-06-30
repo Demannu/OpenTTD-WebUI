@@ -14,7 +14,7 @@ function create_OTTD($port, $saveFile, $config) {
 };
 function destroy_OTTD($pid) {
 	exec("kill -9 $pid");
-	$query = "UPDATE * FROM servers SET 'status'='offline' WHERE 'pidinfo'=" . $pid . "'";
+	$query = "UPDATE * FROM servers SET 'status'='0' WHERE 'pidinfo'=" . $pid . "'";
 	if(mysqli_query($dbconn, $query)) {
 		header('Location: index.php');
 	} else {
@@ -25,9 +25,10 @@ function destroy_OTTD($pid) {
 };
 
 function create_User($username){
-	$genDir = '/var/www/public_html/ottd/profiles/generic/';
+	$genDir = '/var/www/public_html/ottd/profiles/generic/*';
 	$userDir = '/var/www/public_html/ottd/profiles/' . $username;
-	mkdir($userDir, 0700);
-	copy ($genDir, $userDir);
-}
+	mkdir($userDir);
+	$command = 'cp -R ' . $genDir . ' ' . $userDir;
+	exec($command);
+};
 
