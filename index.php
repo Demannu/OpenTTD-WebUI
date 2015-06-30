@@ -4,12 +4,8 @@ if ($_GET["logout"] == 'true')
 	setcookie('username');
 	header('Location: index.php');
 }
-require 'utilities.php';
-$dbhost = 'localhost';
-$dbuser = 'root';
-$dbpass = '@lph@m@le';
-$dbname = 'openttd';
-
+require 'helper.php';
+require 'config.php';
 $dbconn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
 if (!$dbconn){
 	die("Connection failed: " . mysqli_connect_error());
