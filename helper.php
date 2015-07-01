@@ -3,7 +3,8 @@ function create_OTTD($port, $saveFile, $config) {
 	$command = "/usr/games/openttd -D -f -n 0.0.0.0:" . $port . " -g '". $saveFile . "' -c '" . $config . "'" . " > /dev/null 2>&1 & echo $!;";
 	$pid = exec($command, $output);
 	$pidC = $pid + 1;
-	$query = "INSERT INTO servers VALUES (DEFAULT, '" . $_COOKIE["username"] . "', '" . $pidC . "', '" . $config . "', '1')";
+	$username = $_COOKIE["username"];
+	$query = "INSERT INTO servers VALUES (DEFAULT, '" . $username . "', '" . $pidC . "', '" . $config . "', '1')";
 	if(mysqli_query($dbconn, $query)) {
 		header('Location: index.php');
 	} else {

@@ -1,117 +1,55 @@
 <?php
-if ($_GET["logout"] == 'true')
-{
-	setcookie('username');
-	header('Location: index.php');
-}
-require 'config.php';
-require 'helper.php';
-$dbconn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
-if (!$dbconn){
-	die("Connection failed: " . mysqli_connect_error());
-}
+require 'flight/Flight.php';
 
-if($_POST["method"] == 'register'){
-	$username = mysqli_real_escape_string($dbconn,$_POST["username"]);
-	$password = mysqli_real_escape_string($dbconn,$_POST["password"]);
-	$query = "INSERT INTO users VALUES (DEFAULT, '" . $username . "', '" . $password . "')";
-	if(mysqli_query($dbconn, $query)) {
-		create_User($username);
-		setcookie("username", $username, time()+3000);
-		header('Location: index.php');
+// Module Registration
+
+// MySQL Database Connection
+// Configure the array parameters for your setup
+Flight::register('db', 'PDO', array('mysql:host=localhost;port3306;dbname=openttd', 'USERNAME', 'PASSWORD'), function($db) {
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+});
+
+// Mapping Authentication
+Flight::map('userAuth', function($user, $pass){
+	$dbconn = Flight::db();
+	$data = $dbconn->query("SELECT * FROM openttd.users WHERE username='$user' AND password='$pass'");
+	$count = $data->rowCount();
+	setcookie("username", $username, time()+3000);
+});
+
+Flight::map('userCreate', function($user, $pass){
+	$dbconn = Flight::db();
+	$data = $dbconn->query("INSERT INTO openttd.users VALUES (DEFAULT, $user, $pass");
+});
+
+Flight::route('/', function(){
+	if(!isset($_COOKIE["username"]) || $_COOKIE["username"] == ''){
+		Flight::render('login', array(), 'body_content');
+	    Flight::render('layout', array('title' => 'OpenTTD WebUI'));
 	} else {
-		unset($_COOKIE["username"]);
-		echo "<div class='dbError'>
-		<span class='systemWarning'>" .mysqli_error($dbconn) ." </span>
-		</div> ";
+		Flight::render('dash', array(), 'body_content');
+		Flight::render('layout', array('title' => 'OpenTTD WebUI'));
 	};
-};
+});
 
-if($_POST["method"] == 'login'){
-	$username = mysqli_real_escape_string($dbconn,$_POST["username"]);
-	$password = mysqli_real_escape_string($dbconn,$_POST["password"]);
-	$query = "SELECT * FROM users WHERE username='" . $username . "' AND password='" . $password . "'";
-	$userQuery = mysqli_query($dbconn, $query);
-	$userVerify = mysqli_num_rows($userQuery);
-	if($userVerify > 0) {
-		setcookie("username", $username, time()+3000);
-		header('Location: index.php');
-	} else {
-		echo "<div class='dbError'>
-		<span class='systemWarning'>" .mysqli_error($dbconn) ." </span>
-		</div> ";
-	};
-};
+Flight::route('POST /login', function(){
+	$username = $_POST["username"];
+	$password = $_POST["password"];
+	Flight::userAuth($username, $password);
+	Flight::redirect('/');
+});
 
-if($_POST["method"] == 'create'){
-	if($_POST["port"] > 0 & !isset($_POST["pid"])) {
-		$port = $_POST["port"];
-		$saveFile = '/var/www/public_html/ottd/profiles/' . $_COOKIE["username"] . '/' . $_POST["filename"] .'';
-		$config = '/var/www/public_html/ottd/profiles/' . $_COOKIE["username"] . '/openttd.cfg';
-		create_OTTD($port,$saveFile,$config);
-	};
-};
+Flight::route('POST /register', function(){
+	$username = $_POST["username"];
+	$password = $_POST["password"];
+	Flight::userCreate($username, $password);
+	Flight::redirect('/');
+});
 
-if($_POST["method"] == 'destroy'){
-	destroy_OTTD($_POST["pid"]);
-}
+Flight::route('POST /logout', function(){
+	setcookie("username");
+	Flight::redirect('/');
+});
+
+Flight::start();
 ?>
-
-<html>
-<head>
-<title>Zvarpensg OpenTTD Server Registry </title>
-</head>
-<body>
-<?php 
-
-if(!isset($_COOKIE["username"]) || $_COOKIE["username"] == ''){
-	echo "<div class='login'>
-	<center>
-	<h2>User Login</h2>
-	<form action='index.php' method='post'>
-	Username: <br>
-	<input class='username' type='text' name='username'> <br>
-	Password: <br>
-	<input class='password' type='password' name='password'><br>
-	<input type='hidden' name='method' value='login'>
-	<input type='submit' value='Login'> 
-	</form></center>
-	</div> ";
-	echo "<div class='registration'>
-	<center>
-	<h2>User Registration</h2>
-	<form action='index.php' method='post'>
-	Username: <br>
-	<input class='username' type='text' name='username'> <br>
-	Password: <br>
-	<input class='password' type='password' name='password'><br>
-	<input type='hidden' name='method' value='register'>
-	<input type='submit' value='Register'> 
-	</form></center>
-	</div> "; };
-?>
-<?php
-if($_COOKIE["username"] != NULL){
-	if($_POST["port"] < 0 & $_POST["method"] == 'create'){ echo("Negative Port!"); };
-		echo '<html><body><span class="logout"><a href="index.php?logout=true">Logout</a><h2>Create a Server</h2><form action="index.php" method="post">Filename (use final_version.sav) <input type="text" name="filename"><br>Port: <input type="text" name="port" maxlength="5"><input type="hidden" name="method" value="create"><input type="submit"></form>';
-		echo '<h2>View User Saves</h2><br>';
-		$user = $_COOKIE["username"];
-		$fileDir = '/var/www/public_html/ottd/profiles/' . $user;
-		if ($handle = opendir($fileDir)) {
-			while (false !== ($entry = readdir($handle))) {
-				if ($entry != "." && $entry != ".." && strpos($entry, '.sav') !==false) {
-					echo "$entry <br>";
-				}
-			}
-		closedir($handle);
-		};
-	echo '<h2>Destroy a Server</h2><form ation="index.php" method="post">Port: <input type="text" name="pid"><br><input type="hidden" name="method" value="destroy"><input type="submit"></body></html>';
-	echo '<h2>Running Servers</h2>';
-	exec("ps ax|grep openttd|grep -v grep", $output);
-	foreach ($output as $entry) {
-		echo $entry;
-	};
-};
-?>
-</body>
-</html>
