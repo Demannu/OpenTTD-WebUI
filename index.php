@@ -14,12 +14,12 @@ Flight::map('userAuth', function($user, $pass){
 	$dbconn = Flight::db();
 	$data = $dbconn->query("SELECT * FROM openttd.users WHERE username='$user' AND password='$pass'");
 	$count = $data->rowCount();
-	setcookie("username", $username, time()+3000);
+	if($count == 1){ setcookie("username", $user, time()+3000); };
 });
 
 Flight::map('userCreate', function($user, $pass){
 	$dbconn = Flight::db();
-	$data = $dbconn->query("INSERT INTO openttd.users VALUES (DEFAULT, $user, $pass");
+	$data = $dbconn->query("INSERT INTO openttd.users (username, password) VALUES ('$user', '$pass')");
 });
 
 Flight::route('/', function(){
@@ -43,10 +43,11 @@ Flight::route('POST /register', function(){
 	$username = $_POST["username"];
 	$password = $_POST["password"];
 	Flight::userCreate($username, $password);
+	Flight::userAuth($username, $password);
 	Flight::redirect('/');
 });
 
-Flight::route('POST /logout', function(){
+Flight::route('/logout', function(){
 	setcookie("username");
 	Flight::redirect('/');
 });
