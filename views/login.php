@@ -1,4 +1,5 @@
-<div class="container" style="padding-top:90px">
+<div class="container" style="padding-top:20px;">
+		<center> <img src="img/logo.png"> </center>
     	<div class="row">
 			<div class="col-md-6 col-md-offset-3">
 				<div class="panel panel-login">
