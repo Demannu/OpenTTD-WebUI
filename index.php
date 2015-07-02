@@ -22,6 +22,13 @@ Flight::map('userCreate', function($user, $pass){
 	$data = $dbconn->query("INSERT INTO openttd.users (username, password) VALUES ('$user', '$pass')");
 });
 
+Flight::map('serverCreate', function($port){
+	$username = $_COOKIE["username"];
+	$command = "/var/www/public_html/ottd/profiles/generic/ofs-start.py " . $username . " " . $port . " > /dev/null 2>&1 & echo $!;";
+	exec($command, $output);
+});
+
+// Routing Configuration
 Flight::route('/', function(){
 	if(!isset($_COOKIE["username"]) || $_COOKIE["username"] == ''){
 		Flight::render('login', array(), 'body_content');
@@ -42,13 +49,18 @@ Flight::route('POST /login', function(){
 Flight::route('POST /register', function(){
 	$username = $_POST["username"];
 	$password = $_POST["password"];
-	Flight::userCreate($username, $password);
+	Flight::userCreate($username, $password);	
 	Flight::userAuth($username, $password);
 	Flight::redirect('/');
 });
 
 Flight::route('/logout', function(){
 	setcookie("username");
+	Flight::redirect('/');
+});
+
+Flight::route('POST /server/create', function(){
+	Flight::serverCreate($_POST['port']);
 	Flight::redirect('/');
 });
 

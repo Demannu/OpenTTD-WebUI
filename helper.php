@@ -1,17 +1,8 @@
 <?php
-function create_OTTD($port, $saveFile, $config) {
-	$command = "/usr/games/openttd -D -f -n 0.0.0.0:" . $port . " -g '". $saveFile . "' -c '" . $config . "'" . " > /dev/null 2>&1 & echo $!;";
-	$pid = exec($command, $output);
-	$pidC = $pid + 1;
+function create_OTTD($port, $saveFile) {
 	$username = $_COOKIE["username"];
-	$query = "INSERT INTO servers VALUES (DEFAULT, '" . $username . "', '" . $pidC . "', '" . $config . "', '1')";
-	if(mysqli_query($dbconn, $query)) {
-		header('Location: index.php');
-	} else {
-		echo "<div class='dbError'>
-		<span class='systemWarning'>" .mysqli_error($dbconn) ." </span>
-		</div> ";
-	};
+	$command = "/var/www/public_html/ottd/profiles/generic/ofs-start.py " . $username . " " . $port"> /dev/null 2>&1 & echo $!;";
+	$pid = exec($command, $output);
 };
 function destroy_OTTD($pid) {
 	exec("kill -9 $pid");
@@ -32,4 +23,4 @@ function create_User($username){
 	$command = 'cp -R ' . $genDir . ' ' . $userDir;
 	exec($command);
 };
-
+?>
