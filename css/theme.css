@@ -16,7 +16,7 @@
 	font-weight: bold;
 	font-size: 15px;
 	-webkit-transition: all 0.1s linear;
-	-moz-transition: all 0.1s linear;
+	-moz-transition: all 0.1s linear;	
 	transition: all 0.1s linear;
 }
 .panel-login>.panel-heading a.active{
@@ -94,3 +94,5 @@
 	background-color: #1CA347;
 	border-color: #1CA347;
 }
+
+a {cursor:pointer; display:block;color:#ca0000}

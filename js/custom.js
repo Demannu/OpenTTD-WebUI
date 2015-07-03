@@ -1,3 +1,9 @@
+$(document).ready(function(){  
+	$("a.saveLink").click(function (arr) {
+        $('input[name="saveGame"]').val( $(this).attr('name'));
+	}); 
+}); 
+
 $(function() {
 
     $('#login-form-link').click(function(e) {
@@ -16,3 +22,4 @@ $(function() {
 	});
 
 });
+

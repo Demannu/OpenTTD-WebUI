@@ -33,26 +33,6 @@ Flight::map('userCreate', function($user, $pass){
 	}
 });
 
-Flight::map('userPortConfig', function($user){
-	$dbconn = Flight::db();
-	$stmt = $dbconn->prepare("SELECT serverport FROM openttd.servers WHERE username = :user_name");
-	$data = array( 'user_name' => $user);
-	$stmt->execute($data);
-	$result = $stmt->fetchAll();
-	$port = $result[0]["serverport"];
-
-	$userConfig = $ottdProfiles . $user . "/openttd.cfg";
-	$lines = file($userConfig);
-	foreach($lines as &$line){
-		$obj = unserialize($line);
-		if(strstr($obj, 'server_port')){
-			$line = 'server_port = ' . $port;
-			break;
-		}
-	}
-	file_put_contents($userconfig, implode("\n", $lines));
-});
-
 Flight::map('userCreateDir', function($user){
 	$ottdProfiles = '/var/www/public_html/ottd/profiles/';
 	$ottdGeneric = '/var/www/public_html/ottd/profiles/generic/';
@@ -63,9 +43,10 @@ Flight::map('userCreateDir', function($user){
 	exec($command);
 });
 
-Flight::map('serverCreate', function($port){
+Flight::map('serverCreate', function($saveGame){
 	$username = $_COOKIE["username"];
-	$command = "/var/www/public_html/ottd/profiles/generic/ofs-start.py " . $username . " " . $port . " > /dev/null 2>&1";
+	$save = "save/" . $saveGame;
+	$command = "python /var/www/public_html/ottd/profiles/Demannu/ofs-start.py save/final_version.sav";
 	exec($command, $output);
 });
 
@@ -105,17 +86,17 @@ Flight::route('/logout', function(){
 	Flight::redirect('/');
 });
 
-Flight::route('POST /server/create', function(){
-	Flight::serverCreate($_POST['port']);
-	
-});
-
 Flight::route('/user/@user', function($user){
 	Flight::render('dash', array(), 'body_content');
 	Flight::render('layout', array('title' => 'OpenTTD WebUI'));
 });
 
-Flight::route('/test/pdo1/@user', function($user){
+Flight::route('/user/@user/start', function($user){
+	Flight::serverCreate($_POST['saveGame']);
+	Flight::redirect('/user/' . $user);
+});
+
+Flight::route('/test/pdo/@user', function($user){
 	$dbconn = Flight::db();
 	$stmt = $dbconn->prepare("SELECT serverport FROM openttd.servers WHERE username = :user_name");
 	$data = array( 'user_name' => $user);
@@ -124,26 +105,5 @@ Flight::route('/test/pdo1/@user', function($user){
 	echo $result[0]["serverport"];
 });
 
-Flight::route('/test/config/@user', function($user){
-	$ottdProfiles = '/var/www/public_html/ottd/profiles/';
-	$ottdGeneric = '/var/www/public_html/ottd/profiles/generic/';
-	$dbconn = Flight::db();
-	$stmt = $dbconn->prepare("SELECT serverport FROM openttd.servers WHERE username = :user_name");
-	$data = array( 'user_name' => $user);
-	$stmt->execute($data);
-	$result = $stmt->fetchAll();
-	$port = $result[0]["serverport"];
-
-	$userConfig = $ottdProfiles . $user . "/openttd.cfg";
-	$lines = file($userConfig);
-	foreach($lines as &$line){
-		$obj = unserialize($line);
-		if(strstr($obj, 'server_port')){
-			$line = 'server_port = ' . $port;
-			break;
-		}
-	}
-	file_put_contents($userconfig, implode("\n", $lines));
-});
 Flight::start();
 ?>
