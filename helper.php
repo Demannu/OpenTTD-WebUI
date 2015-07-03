@@ -1,7 +1,7 @@
 <?php
 function create_OTTD($port, $saveFile) {
 	$username = $_COOKIE["username"];
-	$command = "/var/www/public_html/ottd/profiles/generic/ofs-start.py " . $username . " " . $port"> /dev/null 2>&1 & echo $!;";
+	$command = "/var/www/public_html/ottd/profiles/generic/ofs-start.py " . $username . " " . $port . "> /dev/null 2>&1 & echo $!;";
 	$pid = exec($command, $output);
 };
 function destroy_OTTD($pid) {
@@ -23,4 +23,15 @@ function create_User($username){
 	$command = 'cp -R ' . $genDir . ' ' . $userDir;
 	exec($command);
 };
+ function test($user){
+
+	$dbconn = Flight::db();
+	$stmt = $dbconn->prepare("SELECT serverport FROM openttd.users WHERE username = :user_name");
+	$data = array( 'user_name' => $user);
+	$stmt->execute($data);
+	$port = $stmt->fetchAll();
+	echo $port[0];
+};
+
+test('lol');
 ?>
