@@ -15,11 +15,13 @@ Flight::register('db', 'PDO', array("mysql:host=$dbhost;port3306;dbname=$dbname"
 // User Functions
 Flight::map('userAuth', function($user, $pass){
 	$dbconn = Flight::db();
-	$stmt = $dbconn->prepare("SELECT * FROM openttd.users WHERE username = :user_name AND password = :pass_word");
-	$data = array( 'user_name' => $user, 'pass_word' => $pass);
-	$result = $stmt->execute($data);
-	$count = $stmt->rowCount();
-	if($count == 1){ setcookie("username", $user, time()+3000); };
+	$stmt = $dbconn->prepare("SELECT password FROM openttd.users WHERE username = :user_name");
+	$data = array( 'user_name' => $user);
+	$stmt->execute($data);
+	$results = $stmt->fetchAll();
+	$salt = $results[0]['password'];
+	$pass = password_verify($pass, $salt);
+	if($pass == true){ setcookie("username", $user); };
 });
 
 Flight::map('userCreate', function($user, $pass){
@@ -45,7 +47,11 @@ Flight::map('userCreateDir', function($user){
 // Server Functions
 Flight::map('serverCreate', function($saveGame){
 	$username = $_COOKIE["username"];
-	$save = "save/" . $saveGame;
+	if($saveGame == ""){
+		$save = " ";
+	} else {
+			$save = "save/" . $saveGame;
+	};
 	$command = "python /var/www/public_html/ottd/profiles/'$username'/ofs-start.py '$save' '$username'";
 	exec($command);
 });
@@ -57,7 +63,7 @@ Flight::map('serverDestroy', function($pid){
 });
 
 Flight::map('downloadSave', function($user, $file){
-	Flight::redirect("http://nalhutta.demannu.com/profiles/$user/save/$file");
+	Flight::redirect("/profiles/$user/save/$file");
 });
 
 // Routing Configuration
@@ -72,14 +78,15 @@ Flight::route('/', function(){
 
 Flight::route('POST /login', function(){
 	$username = $_POST["username"];
-	$password = $_POST["password"];
+	$password =$_POST["password"];
 	Flight::userAuth($username, $password);
 	Flight::redirect('/user/' . $username);
 });
 
 Flight::route('POST /register', function(){
 	$username = $_POST["username"];
-	$password = $_POST["password"];
+	$options = ['salt' => 'putZeLimeindaCocounutz'];
+	$password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
 	if(Flight::userCreate($username, $password) == 1){
 		Flight::userAuth($username, $password);
 		Flight::redirect('/user/' . $username);
@@ -118,6 +125,11 @@ Flight::route('/user/@user/download/@file', function($user, $file){
 	Flight::downloadSave($user, $file);
 	Flight::render('download', array(), 'body_content');
 	Flight::render('layout', array('title' => 'GameSave Download', 'theme' => 'dash'));
+});
+
+Flight::route('/user/@user/failed', function($user){
+	Flight::render('dash', array(), 'body_content');
+	Flight::render('layout', array('title' => 'OpenTTD WebUI', 'theme' => 'dash'));
 });
 
 Flight::route('/test/pdo/@user', function($user){
