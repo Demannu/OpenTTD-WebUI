@@ -12,7 +12,7 @@ Flight::register('db', 'PDO', array("mysql:host=$dbhost;port3306;dbname=$dbname"
 	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 });
 
-// Mapping Authentication
+// User Functions
 Flight::map('userAuth', function($user, $pass){
 	$dbconn = Flight::db();
 	$stmt = $dbconn->prepare("SELECT * FROM openttd.users WHERE username = :user_name AND password = :pass_word");
@@ -28,7 +28,6 @@ Flight::map('userCreate', function($user, $pass){
 	$data = array( 'user_name' => $user, 'pass_word' => $pass);
 	if($stmt->execute($data)){
 		Flight::userCreateDir($user);
-		
 		return '1';
 	}
 });
@@ -43,19 +42,29 @@ Flight::map('userCreateDir', function($user){
 	exec($command);
 });
 
+// Server Functions
 Flight::map('serverCreate', function($saveGame){
 	$username = $_COOKIE["username"];
 	$save = "save/" . $saveGame;
-	$command = "python /var/www/public_html/ottd/profiles/Demannu/ofs-start.py save/final_version.sav";
-	exec($command, $output);
+	$command = "python /var/www/public_html/ottd/profiles/'$username'/ofs-start.py '$save' '$username'";
+	exec($command);
 });
 
+Flight::map('serverDestroy', function($pid){
+	$command = "/bin/kill -9 '$pid'";
+	exec($command, $output);
+	return $output;
+});
+
+Flight::map('downloadSave', function($user, $file){
+	Flight::redirect("http://nalhutta.demannu.com/profiles/$user/save/$file");
+});
 
 // Routing Configuration
 Flight::route('/', function(){
 	if(!isset($_COOKIE["username"]) || $_COOKIE["username"] == ''){
 		Flight::render('login', array(), 'body_content');
-	    Flight::render('layout', array('title' => 'OpenTTD WebUI'));
+	    Flight::render('layout', array('title' => 'OpenTTD WebUI', 'theme' => 'login'));
 	} else {
 		Flight::redirect('/user/' . $_COOKIE["username"]);
 	};
@@ -87,13 +96,28 @@ Flight::route('/logout', function(){
 });
 
 Flight::route('/user/@user', function($user){
-	Flight::render('dash', array(), 'body_content');
-	Flight::render('layout', array('title' => 'OpenTTD WebUI'));
+	if($user == $_COOKIE['username']){
+		Flight::render('dash', array(), 'body_content');
+		Flight::render('layout', array('title' => 'OpenTTD WebUI', 'theme' => 'dash'));
+	} else {
+		Flight::redirect($_COOKIE['username']);
+	};
 });
 
 Flight::route('/user/@user/start', function($user){
 	Flight::serverCreate($_POST['saveGame']);
 	Flight::redirect('/user/' . $user);
+});
+
+Flight::route('/user/@user/destroy', function($user){
+	Flight::serverDestroy($_POST['pid']);
+	Flight::redirect('/user/' . $user);
+});
+
+Flight::route('/user/@user/download/@file', function($user, $file){
+	Flight::downloadSave($user, $file);
+	Flight::render('download', array(), 'body_content');
+	Flight::render('layout', array('title' => 'GameSave Download', 'theme' => 'dash'));
 });
 
 Flight::route('/test/pdo/@user', function($user){
@@ -102,8 +126,16 @@ Flight::route('/test/pdo/@user', function($user){
 	$data = array( 'user_name' => $user);
 	$stmt->execute($data);
 	$result = $stmt->fetchAll();
-	echo $result[0]["serverport"];
 });
 
+Flight::route('/test/ps', function(){
+	exec("ps -o pid,comm", $output);
+	var_dump($output);
+	foreach ($output as $entry) {
+		echo "<button type='button' class='list-group-item'><a href=>Kill</a> | $entry</button>";
+	};
+});
+
+// Take off
 Flight::start();
 ?>
